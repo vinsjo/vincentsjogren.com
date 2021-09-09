@@ -1,4 +1,10 @@
-*:root {
+@font-face {
+	font-family: NeueHaasGrotesk;
+	src: url("http://localhost/vincentsjogren_test/fonts/NHaasGroteskTXPro-55Rg.otf")
+		format("opentype");
+}
+
+:root {
 	--root-fsize: 62.5%;
 	--main-font: Arial, Helvetica, sans-serif;
 	--main-font: NeueHaasGrotesk, Arial, Helvetica, sans-serif;
