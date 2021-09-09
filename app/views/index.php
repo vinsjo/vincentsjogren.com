@@ -1,0 +1,1 @@
+<?php require_once "inc/head.php";require "inc/content.php";require "inc/footer.php";
