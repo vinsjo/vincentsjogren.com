@@ -115,7 +115,7 @@ export default class ApiRequest {
 			}
 			return result;
 		} catch (e) {
-			console.error(e);
+			console.error("ERROR: Failed parsing response from api.");
 			return false;
 		}
 	}
