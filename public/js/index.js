@@ -12,13 +12,11 @@ import BgLoader from "./modules/BgLoader.js";
 const bgContainer = document.getElementById("bg-container");
 const pageWrapper = document.getElementById("page-wrapper");
 const apiRequestUrl = "http://localhost/vincentsjogren_api/";
-const fallbackImg = "http://localhost/vincentsjogren_test/public/img/default.jpg";
 window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
     const apiHeaders = { Accept: "application/json" };
     const apiReq = new ApiRequest(apiRequestUrl, apiHeaders);
     const result = yield apiReq.sendRequest();
     if (typeof result === "boolean") {
-        bgContainer.style.backgroundImage = "url(" + fallbackImg + ")";
         bgContainer.style.opacity = "1";
     }
     else {
