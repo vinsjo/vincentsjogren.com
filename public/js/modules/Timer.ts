@@ -8,21 +8,23 @@ export default class Timer {
 	start(): void {
 		this.startTime = Date.now();
 	}
-	stop(): void {
-		const ms = Date.now() - this.startTime;
+	reset(): void {
 		this.startTime = 0;
+	}
+	stop(): void {
+		if (this.startTime <= 0) {
+			return;
+		}
+		const ms = Date.now() - this.startTime;
+		this.reset();
 		this.data.push(ms);
 		if (this.data.length > this.maxDataLength) {
 			this.data.shift();
 		}
 	}
 	avg(): number {
-		if (this.data.length === 0) {
-			return 0;
-		}
-		const avg = Math.round(
-			this.data.reduce((a, b) => a + b) / this.data.length
-		);
-		return avg;
+		return this.data.length > 0
+			? Math.round(this.data.reduce((a, b) => a + b) / this.data.length)
+			: 0;
 	}
 }

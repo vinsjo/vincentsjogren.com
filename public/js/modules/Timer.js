@@ -6,19 +6,23 @@ export default class Timer {
     start() {
         this.startTime = Date.now();
     }
-    stop() {
-        const ms = Date.now() - this.startTime;
+    reset() {
         this.startTime = 0;
+    }
+    stop() {
+        if (this.startTime <= 0) {
+            return;
+        }
+        const ms = Date.now() - this.startTime;
+        this.reset();
         this.data.push(ms);
         if (this.data.length > this.maxDataLength) {
             this.data.shift();
         }
     }
     avg() {
-        if (this.data.length === 0) {
-            return 0;
-        }
-        const avg = Math.round(this.data.reduce((a, b) => a + b) / this.data.length);
-        return avg;
+        return this.data.length > 0
+            ? Math.round(this.data.reduce((a, b) => a + b) / this.data.length)
+            : 0;
     }
 }

@@ -11,7 +11,7 @@ import ApiRequest from "./modules/ApiRequest.js";
 import BgLoader from "./modules/BgLoader.js";
 const bgContainer = document.getElementById("bg-container");
 const pageWrapper = document.getElementById("page-wrapper");
-const apiRequestUrl = "http://localhost/vincentsjogren_api/";
+const apiRequestUrl = "http://localhost/vincentsjogren_api/shuffle";
 window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
     const apiHeaders = { Accept: "application/json" };
     const apiReq = new ApiRequest(apiRequestUrl, apiHeaders);
@@ -21,7 +21,6 @@ window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
     }
     else {
         const loader = new BgLoader(bgContainer, result.img_files, result.img_sizes, result.img_base_url, result.img_prefix);
-        loader.setTransition(200, "ease-in-out");
         yield loader.init();
         loader.handleClick(pageWrapper);
         window.onkeydown = (ev) => {

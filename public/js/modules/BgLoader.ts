@@ -1,5 +1,5 @@
-import {roundFloat, defined} from "./functions.js";
-import type {ImgInfo, SizeInfo, SizeTemplate} from "./types";
+import {roundFloat, defined, pause, sizeTemplate} from "./functions.js";
+import type {ImgInfo, SizeInfo} from "./types";
 import Timer from "./Timer.js";
 
 export default class BgLoader {
@@ -13,15 +13,12 @@ export default class BgLoader {
 	preloaded: string[];
 	busy: boolean;
 	timer: Timer;
+	minLoadTime = 100;
 	options = {
 		preload: false,
 		stretch: 1,
 		sizeLimit: 0,
-		failLimit: 10,
-	};
-	transition = {
-		ms: 200,
-		ease: "ease",
+		failLimit: 5,
 	};
 	constructor(
 		div: HTMLDivElement,
@@ -45,57 +42,24 @@ export default class BgLoader {
 
 	updateLoadingOptions() {
 		const avg = this.timer.avg();
-		let speed =
-			avg >= 1200
-				? 1
-				: avg >= 1000
-				? 2
-				: avg >= 600
-				? 3
-				: avg >= 300
-				? 4
-				: 5;
 		let opt = this.options;
-		opt.sizeLimit = speed > this.sizes.length ? this.sizes.length : speed;
-		switch (speed) {
-			case 0:
-				opt.preload = false;
-				opt.stretch = 1;
-				break;
-			case 1:
-				opt.preload = false;
-				opt.stretch = 0.75;
-				break;
-			case 2:
-				opt.preload = false;
-				opt.stretch = 0.5;
-				break;
-			case 3:
-				opt.preload = true;
-				opt.stretch = 0.25;
-				break;
-			case 4:
-				opt.preload = true;
-				opt.stretch = 0;
-				break;
-		}
+		opt.preload = avg > 300 ? false : true;
+		1000 < avg
+			? ((opt.sizeLimit = 1), (opt.stretch = 0.8))
+			: 800 < avg
+			? ((opt.sizeLimit = 2), (opt.stretch = 0.6))
+			: 600 < avg
+			? ((opt.sizeLimit = 3), (opt.stretch = 0.4))
+			: 300 < avg
+			? ((opt.sizeLimit = 4), (opt.stretch = 0.2))
+			: ((opt.sizeLimit = 5), (opt.stretch = 0));
+		opt.sizeLimit > this.sizes.length &&
+			(opt.sizeLimit = this.sizes.length);
 		this.options = opt;
 	}
 
-	getSizeTemplate() {
-		const s = {
-			w: undefined,
-			h: undefined,
-			min: undefined,
-			max: undefined,
-			ratio: undefined,
-			ls: undefined,
-		};
-		return s;
-	}
-
 	getScreenSize() {
-		const s = this.getSizeTemplate();
+		const s = sizeTemplate();
 		s.w = window.screen.width;
 		s.h = window.screen.height;
 		s.min = Math.min(s.w, s.h);
@@ -105,8 +69,8 @@ export default class BgLoader {
 		return s;
 	}
 
-	getImgSize(img: ImgInfo, size: SizeInfo): SizeTemplate {
-		const s = this.getSizeTemplate();
+	getImgSize(img: ImgInfo, size: SizeInfo) {
+		const s = sizeTemplate();
 		s.max = size.value;
 		s.min = Math.floor(size.value / img.ratio);
 		s.ls = img.ls;
@@ -186,35 +150,31 @@ export default class BgLoader {
 		this.failedLoading.push(this.images.splice(this.currentIndex, 1)[0]);
 		if (this.failedLoading.length >= this.options.failLimit) {
 			console.error(
-				"ERROR: Failed loading images, aborting execution..."
+				"Failed loading images from API, aborting execution..."
 			);
 			this.images = [];
 		}
 	}
 
-	async pause(delay: number) {
-		return await new Promise((r) => setTimeout(r, delay));
-	}
-
-	async loadImgUrl(url: string) {
-		if (!defined(url) || typeof url !== "string") {
-			return false;
-		}
-		const urlIndex = this.preloaded.indexOf(url);
-		if (urlIndex >= 0) {
-			return true;
-		}
-		this.timer.start();
+	async preloadImgUrl(url: string): Promise<boolean> {
 		let self = this;
 		return new Promise((resolve, reject) => {
+			if (!defined(url) || typeof url !== "string") {
+				resolve(false);
+			}
+			const urlIndex = self.preloaded.indexOf(url);
+			if (urlIndex >= 0) {
+				resolve(true);
+			}
+			self.timer.start();
 			const img = new Image();
 			img.onload = () => {
 				let l = self.preloaded.unshift(url);
 				if (l > 25) {
 					self.preloaded.pop();
 				}
-				self.timer.stop();
 				self.updateLoadingOptions();
+				self.timer.stop();
 				resolve(true);
 			};
 			img.onerror = () => {
@@ -222,7 +182,8 @@ export default class BgLoader {
 				if (urlIndex >= 0) {
 					self.preloaded.splice(urlIndex, 1);
 				}
-				reject("Failed loading " + url);
+				self.timer.reset();
+				resolve(false);
 			};
 			img.src = url;
 		});
@@ -232,7 +193,7 @@ export default class BgLoader {
 		const index = inc < 0 ? this.currentIndex - 1 : this.currentIndex + 1;
 		const url = this.getImgUrl(index);
 		if (url.length > this.baseUrl.length) {
-			return await this.loadImgUrl(url);
+			await this.preloadImgUrl(url);
 		}
 	}
 
@@ -241,7 +202,7 @@ export default class BgLoader {
 			return;
 		}
 		const url = this.getImgUrl(this.currentIndex, 0);
-		await this.loadImgUrl(url);
+		await this.preloadImgUrl(url);
 	}
 
 	async loadBackground(inc: -1 | 0 | 1 = 0) {
@@ -253,39 +214,28 @@ export default class BgLoader {
 		const bg = "url(" + url + ")";
 		if (this.div.style.backgroundImage !== bg) {
 			this.busy = true;
-			let self = this;
-			const ok = await this.loadImgUrl(url);
+			this.div.style.opacity = "0";
+			const ok = await this.preloadImgUrl(url);
+			const avg = this.timer.avg();
+			const pauseTime =
+				avg > this.minLoadTime ? Math.floor(avg / 2) : this.minLoadTime;
 			if (ok === true) {
 				this.failedLoading.shift();
-				self.div.style.opacity = "0";
-				await self.pause(self.transition.ms);
-				self.div.style.backgroundImage = bg;
-				await self.pause(self.transition.ms);
-				self.div.style.opacity = "1";
+				await pause(pauseTime);
+				this.div.style.backgroundImage = bg;
+				await pause(pauseTime);
+				this.div.style.opacity = "1";
 				if (this.options.preload === true) {
 					this.preload(-1);
 					this.preload(1);
 				}
 			} else {
 				this.unsetCurrent();
-				await this.pause(this.transition.ms);
 				await this.loadBackground();
 			}
+			this.div.style.opacity = "1";
 		}
 		this.busy = false;
-	}
-
-	setTransition(ms?: number, ease?: string) {
-		if (defined(ms)) {
-			Number.isInteger(ms) && (this.transition.ms = ms);
-		}
-		if (defined(ease)) {
-			typeof ease === "string" &&
-				ease.length > 0 &&
-				(this.transition.ease = ease);
-		}
-		const t = `opacity ${this.transition.ms}ms ${this.transition.ease}`;
-		this.div.style.transition = t;
 	}
 
 	handleClick(eventTarget: HTMLElement) {
