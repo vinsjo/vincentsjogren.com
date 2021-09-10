@@ -1,6 +1,6 @@
 import {roundFloat, defined, pause, sizeTemplate} from "./functions.js";
 import type {ImgInfo, SizeInfo} from "./types";
-import Timer from "./Timer.js";
+import Timer from "./timer.js";
 
 export default class BgLoader {
 	div: HTMLDivElement;
@@ -13,7 +13,7 @@ export default class BgLoader {
 	preloaded: string[];
 	busy: boolean;
 	timer: Timer;
-	minLoadTime = 100;
+	minLoadTime = 200;
 	options = {
 		preload: false,
 		stretch: 1,

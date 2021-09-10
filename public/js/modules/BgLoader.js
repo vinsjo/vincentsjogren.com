@@ -8,10 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { roundFloat, defined, pause, sizeTemplate } from "./functions.js";
-import Timer from "./Timer.js";
+import Timer from "./timer.js";
 export default class BgLoader {
     constructor(div, images, sizes, imgBaseUrl, imgPrefix) {
-        this.minLoadTime = 100;
+        this.minLoadTime = 200;
         this.options = {
             preload: false,
             stretch: 1,

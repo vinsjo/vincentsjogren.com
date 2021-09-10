@@ -7,8 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import ApiRequest from "./modules/ApiRequest.js";
-import BgLoader from "./modules/BgLoader.js";
+import ApiRequest from "./modules/apirequest.js";
+import BgLoader from "./modules/bgloader.js";
 const bgContainer = document.getElementById("bg-container");
 const pageWrapper = document.getElementById("page-wrapper");
 const apiRequestUrl = "http://localhost/vincentsjogren_api/shuffle";
