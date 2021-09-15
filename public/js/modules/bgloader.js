@@ -7,19 +7,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { roundFloat, defined, pause, sizeTemplate } from "./functions.js";
-import Timer from "./timer.js";
+import { roundFloat, defined, shuffleArray, sizeTemplate } from "./functions.min.js";
+import Timer from "./timer.min.js";
 export default class BgLoader {
-    constructor(div, images, sizes, imgBaseUrl, imgPrefix) {
-        this.minLoadTime = 200;
+    constructor(slider, slides, images, sizes, imgBaseUrl, imgPrefix, touchAreaLeft, touchAreaRight) {
+        this.slideTransitionLength = 300;
+        this.slideDefaultTransition = `transform ${this.slideTransitionLength} ease-in-out`;
+        this.direction = 0;
         this.options = {
-            preload: false,
             stretch: 1,
             sizeLimit: 0,
             failLimit: 5,
         };
-        this.div = div;
-        this.images = images;
+        this.slider = slider;
+        this.slides = slides;
+        this.touchAreaLeft = touchAreaLeft;
+        this.touchAreaRight = touchAreaRight;
+        this.images = shuffleArray(images);
         this.sizes = sizes;
         this.baseUrl = imgBaseUrl;
         this.imgPrefix = imgPrefix;
@@ -30,10 +34,18 @@ export default class BgLoader {
         this.options.sizeLimit = sizes.length;
         this.timer = new Timer();
     }
+    setSliderX(translateX) {
+        this.slider.style.transform = `translateX(${translateX}px)`;
+    }
+    setSliderTransition(ms) {
+        if (typeof ms === "number")
+            this.slider.style.transition = `transform ${ms}ms ease-in-out`;
+        else
+            this.slider.style.transition = "none";
+    }
     updateLoadingOptions() {
         const avg = this.timer.avg();
         let opt = this.options;
-        opt.preload = avg > 300 ? false : true;
         1000 < avg
             ? ((opt.sizeLimit = 1), (opt.stretch = 0.8))
             : 800 < avg
@@ -110,7 +122,7 @@ export default class BgLoader {
         if (!defined(size.key)) {
             size = this.sizes[0];
         }
-        return this.imgPrefix + img.name + size.key + "." + img.ext;
+        return this.imgPrefix + img.name + size.key + ".jpg";
     }
     getImgUrl(imgIndex, sizeIndex) {
         const imgName = this.getImgName(imgIndex, sizeIndex);
@@ -127,9 +139,9 @@ export default class BgLoader {
             this.currentIndex = i;
         }
     }
-    unsetCurrent() {
+    unsetImg(index) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.failedLoading.push(this.images.splice(this.currentIndex, 1)[0]);
+            this.failedLoading.push(this.images.splice(index, 1)[0]);
             if (this.failedLoading.length >= this.options.failLimit) {
                 console.error("Failed loading images from API, aborting execution...");
                 this.images = [];
@@ -188,72 +200,97 @@ export default class BgLoader {
             yield this.preloadImgUrl(url);
         });
     }
-    loadBackground(inc = 0) {
+    loadSlideBackground(slide, inc) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.images.length <= 0) {
                 return;
             }
-            Number.isInteger(inc) && inc !== 0 && this.incCurrent(inc);
-            const url = this.getImgUrl(this.currentIndex);
-            const bg = "url(" + url + ")";
-            if (this.div.style.backgroundImage !== bg) {
+            let i = this.currentIndex + inc;
+            while (i < 0 || i > this.images.length - 1) {
+                i < 0
+                    ? (i += this.images.length)
+                    : i > this.images.length - 1 && (i -= this.images.length);
+            }
+            const url = this.getImgUrl(i);
+            const bg = `url(${url})`;
+            if (slide.style.backgroundImage !== bg) {
                 this.busy = true;
-                this.div.style.opacity = "0";
                 const ok = yield this.preloadImgUrl(url);
-                const avg = this.timer.avg();
-                const pauseTime = avg > this.minLoadTime ? Math.floor(avg / 2) : this.minLoadTime;
                 if (ok === true) {
-                    this.failedLoading.shift();
-                    yield pause(pauseTime);
-                    this.div.style.backgroundImage = bg;
-                    yield pause(pauseTime);
-                    this.div.style.opacity = "1";
-                    if (this.options.preload === true) {
-                        this.preload(-1);
-                        this.preload(1);
-                    }
+                    slide.style.backgroundImage = bg;
                 }
                 else {
-                    this.unsetCurrent();
-                    yield this.loadBackground();
+                    this.unsetImg(i);
+                    yield this.loadSlideBackground(slide, inc);
                 }
-                this.div.style.opacity = "1";
             }
             this.busy = false;
         });
     }
-    handleClick(eventTarget) {
-        const self = this;
-        eventTarget.onclick = (ev) => {
-            if (ev.target === eventTarget) {
-                self.next();
+    onTransitionEnd() {
+        if (this.direction !== 0) {
+            let first = this.slider.firstElementChild, last = this.slider.lastElementChild, updatedSlide, loadIndex;
+            if (this.direction < 0) {
+                this.currentIndex++;
+                this.slider.appendChild(first);
+                loadIndex = 2;
+                updatedSlide = first;
             }
-        };
-    }
-    handleKeyDown(ev) {
-        if (ev.key === "ArrowRight" || ev.key === " ") {
-            this.next();
+            else {
+                this.currentIndex--;
+                this.slider.insertBefore(last, first);
+                loadIndex = -2;
+                updatedSlide = last;
+            }
+            this.currentIndex > this.images.length - 1
+                ? (this.currentIndex = 0)
+                : this.currentIndex < 0 &&
+                    (this.currentIndex = this.images.length - 1);
+            this.setSliderTransition(false);
+            this.setSliderX(0);
+            setTimeout(() => {
+                this.loadSlideBackground(updatedSlide, loadIndex);
+                this.direction = 0;
+                this.setSliderTransition(this.slideTransitionLength);
+            });
         }
-        if (ev.key === "ArrowLeft") {
-            this.previous();
+    }
+    move(direction = 0) {
+        if (Date.now() - this.keyDownTimeout > this.slideTransitionLength) {
+            this.direction = direction < 0 ? -1 : 1;
+            let touchArea = direction < 0 ? this.touchAreaRight : this.touchAreaLeft;
+            touchArea.classList.add("show");
+            this.setSliderX(this.direction * window.innerWidth);
+            setTimeout(() => touchArea.classList.remove("show"), this.slideTransitionLength);
+            this.keyDownTimeout = Date.now();
         }
     }
-    init() {
+    moveLeft() {
+        this.move(-1);
+    }
+    moveRight() {
+        this.move(1);
+    }
+    initBackgrounds() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.images.length > 0) {
-                yield this.testLoadingSpeed();
-                yield this.loadBackground();
+            let firstInc = -Math.floor(this.slides.length / 2);
+            for (let i = 0; i < this.slides.length; i++) {
+                yield this.loadSlideBackground(this.slides[i], firstInc + i);
+                this.slides[i].style.opacity = "1";
             }
         });
     }
-    next() {
-        if (this.images.length > 0 && !this.busy) {
-            this.loadBackground(1);
-        }
-    }
-    previous() {
-        if (this.images.length > 0 && !this.busy) {
-            this.loadBackground(-1);
-        }
+    init() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.images.length >= this.slides.length) {
+                this.keyDownTimeout = Date.now();
+                yield this.testLoadingSpeed();
+                yield this.initBackgrounds();
+                this.setSliderTransition(this.slideTransitionLength);
+                this.slider.ontransitionend = () => {
+                    this.onTransitionEnd();
+                };
+            }
+        });
     }
 }

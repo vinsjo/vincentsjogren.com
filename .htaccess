@@ -1,3 +1,7 @@
 RewriteEngine on
-RewriteRule ^$ public/ [L]
-RewriteRule (.*) public/$1 [L]
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteCond %{HTTP_HOST} ^www\.vincentsjogren\.com$
+RewriteRule ^(.*)* https://vincentsjogren.com/$1 [L,R=301]
+RewriteCond $1 !^(api)
+RewriteRule ^(.*)$ public/$1 [L]

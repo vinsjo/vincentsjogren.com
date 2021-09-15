@@ -1,7 +1,7 @@
 Options -Multiviews
 RewriteEngine On
-RewriteBase /vincentsjogren_test/public/
+RewriteBase /public/
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond $1 !^(css|img|fonts|js|favicon)
-RewriteRule  ^(.+)$ index.html?url=$1 [co=SameSite:Strict] [QSA,L]
+RewriteRule  ^(.+)$ index.html?uri=$1 [co=SameSite:Strict] [QSA,L]

@@ -31,3 +31,16 @@ export function sizeTemplate() {
         ls: false,
     };
 }
+export function shuffleArray(arr) {
+    if (arr.length <= 1)
+        return arr;
+    let output = arr.concat();
+    var remaining = output.length, tmp, i;
+    while (remaining) {
+        i = Math.floor(Math.random() * remaining--);
+        tmp = output[remaining];
+        output[remaining] = output[i];
+        output[i] = tmp;
+    }
+    return output;
+}

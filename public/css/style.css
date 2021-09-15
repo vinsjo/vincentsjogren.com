@@ -1,12 +1,11 @@
 @font-face {
 	font-family: NeueHaasGrotesk;
-	src: url("http://localhost/vincentsjogren/fonts/NHaasGroteskTXPro-55Rg.otf")
+	src: url("https://vincentsjogren.com/public/fonts/NHaasGroteskTXPro-55Rg.otf")
 		format("opentype");
 }
 
 :root {
 	--root-fsize: 62.5%;
-	--main-font: Arial, Helvetica, sans-serif;
 	--main-font: NeueHaasGrotesk, Arial, Helvetica, sans-serif;
 }
 
@@ -17,20 +16,12 @@
 	overflow: hidden;
 }
 
-html {
+html,
+body {
 	height: 100vh;
 	width: 100vw;
 	font-size: 62.5%;
 	font-size: var(--root-fsize);
-}
-
-body {
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 1;
 	background: black;
 	color: white;
 }
@@ -52,16 +43,85 @@ a {
 	font-size: 1.6rem;
 }
 
-#bg-container {
+.carousel {
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: flex-start;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.slider {
+	height: 100%;
+	width: 500%;
+	flex-shrink: 0;
+	position: relative;
+	left: calc(-200vw);
+	transform: translateX(0);
+	display: inline-flex;
+	transition: transform 300ms ease-in-out;
+}
+
+.slide {
 	width: 100vw;
 	height: 100vh;
-	background-color: black;
+	flex: 1;
+	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
-	background-size: cover;
-	opacity: 0;
-	z-index: 5;
+	color: white;
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: center;
+	align-items: center;
 	transition: opacity 200ms ease-in-out;
+	opacity: 0;
+}
+
+.slide:first-of-type,
+.slide:last-of-type {
+	opacity:0;
+}
+
+.touch-area {
+	position: absolute;
+	top: 0;
+	z-index: 10;
+	width: 50vw;
+	height: 100%;
+	opacity: 0;
+	transition: opacity 200ms ease-in-out;
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: center;
+	padding-left: 30px;
+	align-items: flex-start;
+}
+.touch-area h1 {
+	font-size: 4.8rem;
+	font-weight: 700;
+	color: white;
+	opacity: 0.6;
+       -webkit-touch-callout: none; /* Safari */
+         -webkit-user-select: none; /* Chrome */     
+            -moz-user-select: none; /* Firefox */
+             -ms-user-select: none; /* Internet Explorer/Edge */
+                 user-select: none; 
+}
+.touch-area.left {
+	left: 0;
+	cursor: w-resize;
+}
+.touch-area.right {
+	left: 50vw;
+	cursor: e-resize;
+	transform: scale(-1, 1);
+}
+.touch-area.show {
+	opacity: 1;
 }
 
 #page-wrapper {
@@ -74,35 +134,40 @@ a {
 	z-index: 10;
 	display: flex;
 	flex-flow: column nowrap;
-	justify-content: center;
+	justify-content: flex-end;
 	align-items: center;
+	padding: 10px;
 }
 
 #mail-link {
 	position: relative;
-	z-index: 10;
-	display: block;
-	width: fit-content;
-	height: fit-content;
+	z-index: 20;
 	border-radius: 10px;
 	padding: 1.5rem 2rem;
-	font-family: var(--main-font);
-	font-size: 2.4rem;
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: center;
+	align-items: center;
 	color: white;
-	text-align: center;
 	outline: none;
-	user-select: none;
-	transition-property: background, border-color;
-	transition-duration: 200ms;
-	transition-timing-function: ease;
+	transition: background 200ms ease-in-out, border-color 200ms ease-in-out;
 	background: rgba(0, 0, 0, 0);
 	border: 2px solid rgba(0, 0, 0, 0);
 }
 
+#mail-link p {
+	font-family: var(--main-font);
+	font-size: 2.4rem;
+	user-select: none;
+}
+
 #mail-link:hover,
-#mail-link:focus {
+#mail-link:focus,
+#mail-link:active {
 	background: rgba(0, 0, 0, 0.6);
 }
 #mail-link:focus {
 	border-color: white;
 }
+
+

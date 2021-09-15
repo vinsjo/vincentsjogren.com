@@ -1,0 +1,7 @@
+Options -Multiviews
+RewriteEngine On
+RewriteBase /api/
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond $1 !^(img|favicon)
+RewriteRule  ^(.+)$ index.php?uri=$1 [QSA,L]

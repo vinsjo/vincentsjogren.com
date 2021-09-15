@@ -9,22 +9,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import ApiRequest from "./modules/apirequest.js";
 import BgLoader from "./modules/bgloader.js";
-const bgContainer = document.getElementById("bg-container");
-const pageWrapper = document.getElementById("page-wrapper");
-const apiRequestUrl = "http://localhost/vincentsjogren_api/shuffle";
+const slider = document.querySelector(".slider"), pageWrapper = document.querySelector("#page-wrapper"), touchAreaLeft = document.querySelector(".touch-area.left"), touchAreaRight = document.querySelector(".touch-area.right"), slides = Array.from(document.querySelectorAll(".slide")), apiRequestUrl = "http://localhost/vincentsjogren_slide/api";
+window.oncontextmenu = (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    return false;
+};
 window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
     const apiHeaders = { Accept: "application/json" };
     const apiReq = new ApiRequest(apiRequestUrl, apiHeaders);
     const result = yield apiReq.sendRequest();
     if (typeof result === "boolean") {
-        bgContainer.style.opacity = "1";
+        slides[2].style.backgroundImage =
+            "https://vincentsjogren.com/api";
+        slides[2].style.opacity = "1";
     }
     else {
-        const loader = new BgLoader(bgContainer, result.img_files, result.img_sizes, result.img_base_url, result.img_prefix);
+        const loader = new BgLoader(slider, slides, result.img_files, result.img_sizes, result.img_base_url, result.img_prefix, touchAreaLeft, touchAreaRight);
         yield loader.init();
-        loader.handleClick(pageWrapper);
         window.onkeydown = (ev) => {
-            loader.handleKeyDown(ev);
+            if (ev.key === "ArrowLeft")
+                loader.moveRight();
+            if (ev.key === "ArrowRight")
+                loader.moveLeft();
         };
+        touchAreaLeft.ontouchstart = touchAreaLeft.onmousedown = () => loader.moveRight();
+        touchAreaRight.ontouchstart = touchAreaRight.onmousedown = () => loader.moveLeft();
     }
 });
