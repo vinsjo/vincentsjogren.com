@@ -63,6 +63,7 @@ a {
 	transform: translateX(0);
 	display: inline-flex;
 	transition: transform 300ms ease-in-out;
+	will-change: transform;
 }
 
 .slide {
