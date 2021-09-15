@@ -9,7 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import ApiRequest from "./modules/apirequest.js";
 import BgLoader from "./modules/bgloader.js";
-const slider = document.querySelector(".slider"), pageWrapper = document.querySelector("#page-wrapper"), touchAreaLeft = document.querySelector(".touch-area.left"), touchAreaRight = document.querySelector(".touch-area.right"), slides = Array.from(document.querySelectorAll(".slide")), apiRequestUrl = "http://localhost/vincentsjogren_slide/api";
+import { shuffleArray } from "./modules/functions.js";
+const slider = document.querySelector(".slider"), pageWrapper = document.querySelector("#page-wrapper"), touchAreaLeft = document.querySelector(".touch-area.left"), touchAreaRight = document.querySelector(".touch-area.right"), slides = Array.from(document.querySelectorAll(".slide")), apiRequestUrl = "http://localhost/vincentsjogren.com/api";
 window.oncontextmenu = (ev) => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -21,11 +22,11 @@ window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield apiReq.sendRequest();
     if (typeof result === "boolean") {
         slides[2].style.backgroundImage =
-            "https://vincentsjogren.com/api";
+            "http://localhost/vincentsjogren.com/public/img/default.jpg";
         slides[2].style.opacity = "1";
     }
     else {
-        const loader = new BgLoader(slider, slides, result.img_files, result.img_sizes, result.img_base_url, result.img_prefix, touchAreaLeft, touchAreaRight);
+        const loader = new BgLoader(slider, slides, shuffleArray(result.img_files), result.img_sizes, result.img_base_url, result.img_prefix, touchAreaLeft, touchAreaRight);
         yield loader.init();
         window.onkeydown = (ev) => {
             if (ev.key === "ArrowLeft")

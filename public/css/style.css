@@ -1,6 +1,6 @@
 @font-face {
 	font-family: NeueHaasGrotesk;
-	src: url("https://vincentsjogren.com/public/fonts/NHaasGroteskTXPro-55Rg.otf")
+	src: url("http://localhost/vincentsjogren.com/public/fonts/NHaasGroteskTXPro-55Rg.otf")
 		format("opentype");
 }
 
@@ -83,7 +83,7 @@ a {
 
 .slide:first-of-type,
 .slide:last-of-type {
-	opacity:0;
+	opacity: 0;
 }
 
 .touch-area {
@@ -105,11 +105,11 @@ a {
 	font-weight: 700;
 	color: white;
 	opacity: 0.6;
-       -webkit-touch-callout: none; /* Safari */
-         -webkit-user-select: none; /* Chrome */     
-            -moz-user-select: none; /* Firefox */
-             -ms-user-select: none; /* Internet Explorer/Edge */
-                 user-select: none; 
+	-webkit-touch-callout: none; /* Safari */
+	-webkit-user-select: none; /* Chrome */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none;
 }
 .touch-area.left {
 	left: 0;
@@ -169,5 +169,3 @@ a {
 #mail-link:focus {
 	border-color: white;
 }
-
-

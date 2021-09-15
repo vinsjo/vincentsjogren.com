@@ -1,5 +1,6 @@
 import ApiRequest from "./modules/apirequest.js";
 import BgLoader from "./modules/bgloader.js";
+import {shuffleArray} from "./modules/functions.js";
 const slider = document.querySelector(".slider") as HTMLDivElement,
 	pageWrapper = document.querySelector("#page-wrapper") as HTMLDivElement,
 	touchAreaLeft = document.querySelector(
@@ -11,7 +12,7 @@ const slider = document.querySelector(".slider") as HTMLDivElement,
 	slides = Array.from(
 		document.querySelectorAll(".slide")
 	) as HTMLDivElement[],
-	apiRequestUrl = "http://localhost/vincentsjogren_slide/api";
+	apiRequestUrl = "http://localhost/vincentsjogren.com/api";
 
 window.oncontextmenu = (ev: MouseEvent) => {
 	ev.preventDefault();
@@ -25,13 +26,13 @@ window.onload = async () => {
 	const result = await apiReq.sendRequest();
 	if (typeof result === "boolean") {
 		slides[2].style.backgroundImage =
-			"http://localhost/vincentsjogren_slide/public/img/default.jpg";
+			"http://localhost/vincentsjogren.com/public/img/default.jpg";
 		slides[2].style.opacity = "1";
 	} else {
 		const loader = new BgLoader(
 			slider,
 			slides,
-			result.img_files,
+			shuffleArray(result.img_files),
 			result.img_sizes,
 			result.img_base_url,
 			result.img_prefix,

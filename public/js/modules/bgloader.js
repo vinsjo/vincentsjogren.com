@@ -7,8 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { roundFloat, defined, shuffleArray, sizeTemplate } from "./functions.min.js";
-import Timer from "./timer.min.js";
+import { roundFloat, defined, sizeTemplate } from "./functions.js";
+import Timer from "./timer.js";
 export default class BgLoader {
     constructor(slider, slides, images, sizes, imgBaseUrl, imgPrefix, touchAreaLeft, touchAreaRight) {
         this.slideTransitionLength = 300;
@@ -23,7 +23,7 @@ export default class BgLoader {
         this.slides = slides;
         this.touchAreaLeft = touchAreaLeft;
         this.touchAreaRight = touchAreaRight;
-        this.images = shuffleArray(images);
+        this.images = images;
         this.sizes = sizes;
         this.baseUrl = imgBaseUrl;
         this.imgPrefix = imgPrefix;
@@ -287,8 +287,9 @@ export default class BgLoader {
                 yield this.testLoadingSpeed();
                 yield this.initBackgrounds();
                 this.setSliderTransition(this.slideTransitionLength);
-                this.slider.ontransitionend = () => {
-                    this.onTransitionEnd();
+                this.slider.ontransitionend = (ev) => {
+                    if (ev.target === this.slider)
+                        this.onTransitionEnd();
                 };
             }
         });

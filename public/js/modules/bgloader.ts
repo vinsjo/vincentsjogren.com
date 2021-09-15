@@ -40,7 +40,7 @@ export default class BgLoader {
 		this.slides = slides;
 		this.touchAreaLeft = touchAreaLeft;
 		this.touchAreaRight = touchAreaRight;
-		this.images = shuffleArray(images);
+		this.images = images;
 		this.sizes = sizes;
 		this.baseUrl = imgBaseUrl;
 		this.imgPrefix = imgPrefix;
@@ -317,8 +317,8 @@ export default class BgLoader {
 			await this.testLoadingSpeed();
 			await this.initBackgrounds();
 			this.setSliderTransition(this.slideTransitionLength);
-			this.slider.ontransitionend = () => {
-				this.onTransitionEnd();
+			this.slider.ontransitionend = (ev: TransitionEvent) => {
+				if (ev.target === this.slider) this.onTransitionEnd();
 			};
 		}
 	}
