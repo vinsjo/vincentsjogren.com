@@ -3,7 +3,7 @@ declare (strict_types = 1);
 
 class Response extends Controller
 {
-    protected $_model;
+    private $__model;
     public function __construct()
     {
         try {
@@ -11,8 +11,7 @@ class Response extends Controller
             ) {
                 //$this->_error(403);
             }
-            $uri          = $this->_getRequestURI();
-            $this->_model = new ResponseModel(
+            $this->__model = new ResponseModel(
                 IMG_ROOT,
                 URL_IMG,
                 IMG_JSON,
@@ -20,20 +19,27 @@ class Response extends Controller
                 IMG_PREFIX,
                 IMG_SIZES
             );
-            $this->__response();
+            $data = $this->__model->getResponse();
+            if (empty($data)) {
+                $this->_error(500, "No response data.");
+            } else {
+                $this->__response($data);
+            }
         } catch (Exception $e) {
             $this->_error();
         }
     }
 
-    private function __response()
+    private function __response($data)
     {
-        $response = $this->_model->getResponse();
-        if (!empty($response)) {
-            $data = ["response" => $response];
-            $this->_view("response", $data);
-        } else {
-            $this->_error();
-        }
+        $json = json_encode($data,
+            JSON_UNESCAPED_UNICODE |
+            JSON_UNESCAPED_SLASHES |
+            JSON_PRESERVE_ZERO_FRACTION |
+            JSON_NUMERIC_CHECK
+        );
+        header("Content-Type: application/json");
+        header("Content-Length: " . strlen($json));
+        echo $json;
     }
 }

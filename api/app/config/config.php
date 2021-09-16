@@ -1,8 +1,8 @@
 <?php
 date_default_timezone_set("Europe/Stockholm");
-
+ini_set('display_errors', '0');
 if (version_compare(phpversion(), '7.1', '>=')) {
-    ini_set('serialize_precision', -1);
+    ini_set('serialize_precision', '-1');
 }
 
 define("ROOT", dirname(__FILE__, 3));

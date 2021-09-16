@@ -17,15 +17,6 @@ class Controller
         }
     }
 
-    protected function _view(string $view, $data = [])
-    {
-        $path = realpath(APP_ROOT . "/views/" . $view . ".php");
-        if (!$path) {
-            $this->_error();
-        }
-        require $path;
-    }
-
     protected function _getRequestURI()
     {
         if (isset($_GET["uri"])) {
