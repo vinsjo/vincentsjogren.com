@@ -8,13 +8,13 @@ class Response extends Controller
     public function __construct()
     {
         try {
-            if (!isset($_SERVER["HTTP_ACCEPT_ENCODING"]) ||
-                strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") === false) {
-                $this->gzipEncode = false;
-            }
             if ($_SERVER["HTTP_SEC_FETCH_SITE"] !== "same-origin"
             ) {
                 //$this->_error(403);
+            }
+            if (!isset($_SERVER["HTTP_ACCEPT_ENCODING"]) ||
+                strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") === false) {
+                $this->gzipEncode = false;
             }
             $this->__model = new ResponseModel(
                 IMG_ROOT,
