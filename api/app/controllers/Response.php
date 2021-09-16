@@ -4,9 +4,14 @@ declare (strict_types = 1);
 class Response extends Controller
 {
     private $__model;
+    public $gzipEncode = true;
     public function __construct()
     {
         try {
+            if (!isset($_SERVER["HTTP_ACCEPT_ENCODING"]) ||
+                strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") === false) {
+                $this->gzipEncode = false;
+            }
             if ($_SERVER["HTTP_SEC_FETCH_SITE"] !== "same-origin"
             ) {
                 //$this->_error(403);
@@ -32,14 +37,20 @@ class Response extends Controller
 
     private function __response($data)
     {
-        $json = json_encode($data,
+        header("Content-Type: application/json");
+        $body = json_encode($data,
             JSON_UNESCAPED_UNICODE |
             JSON_UNESCAPED_SLASHES |
             JSON_PRESERVE_ZERO_FRACTION |
             JSON_NUMERIC_CHECK
         );
-        header("Content-Type: application/json");
-        header("Content-Length: " . strlen($json));
-        echo $json;
+        if ($this->gzipEncode) {
+            if ($gz = gzencode($body)) {
+                $body = $gz;
+                header("Content-Encoding: gzip");
+            }
+        }
+        header("Content-Length: " . strlen($body));
+        echo $body;
     }
 }
