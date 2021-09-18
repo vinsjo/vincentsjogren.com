@@ -52,11 +52,11 @@ window.onload = async () => {
 		touchAreaLeft.style.cursor =
 			'url("' +
 			"http://localhost/vincentsjogren.com/public/icons/arrow-left-cursor.svg" +
-			'") 1 16, auto';
+			'") 1 16, pointer';
 		touchAreaRight.style.cursor =
 			'url("' +
 			"http://localhost/vincentsjogren.com/public/icons/arrow-right-cursor.svg" +
-			'") 17 16, auto';
+			'") 17 16, pointer';
 	} else {
 		slides[2].style.backgroundImage =
 			"http://localhost/vincentsjogren.com/public/img/default.jpg";
