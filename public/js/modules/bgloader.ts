@@ -15,11 +15,12 @@ export default class BgLoader {
 	sizes: SizeInfo[];
 	failedLoading: ImgInfo[];
 	preloaded: string[];
-	busy: boolean;
 	timer: Timer;
-	slideTransitionLength = 300;
+	slideTransitionLength = 500;
 	slideDefaultTransition = `transform ${this.slideTransitionLength} ease-in-out`;
 	direction: -1 | 0 | 1 = 0;
+	busy = false;
+	touchScreen = true;
 	keyDownTimeout: number;
 	options = {
 		stretch: 1,
@@ -47,7 +48,6 @@ export default class BgLoader {
 		this.currentIndex = 0;
 		this.failedLoading = [];
 		this.preloaded = [];
-		this.busy = false;
 		this.options.sizeLimit = sizes.length;
 		this.timer = new Timer();
 	}
@@ -281,26 +281,28 @@ export default class BgLoader {
 		}
 	}
 
-	move(direction: -1 | 0 | 1 = 0) {
+	move(direction: -1 | 0 | 1 = 0, showArrow = true) {
 		if (Date.now() - this.keyDownTimeout > this.slideTransitionLength) {
 			this.direction = direction < 0 ? -1 : 1;
-			let touchArea =
-				direction < 0 ? this.touchAreaRight : this.touchAreaLeft;
-			touchArea.classList.add("show");
+			if (showArrow) {
+				const touchArea =
+					direction > 0 ? this.touchAreaLeft : this.touchAreaRight;
+				touchArea.classList.add("show");
+				setTimeout(
+					() => touchArea.classList.remove("show"),
+					this.slideTransitionLength
+				);
+			}
 			this.setSliderX(this.direction * window.innerWidth);
-			setTimeout(
-				() => touchArea.classList.remove("show"),
-				this.slideTransitionLength
-			);
 			this.keyDownTimeout = Date.now();
 		}
 	}
 
-	moveLeft() {
-		this.move(-1);
+	moveLeft(showArrow = true) {
+		this.move(-1, showArrow);
 	}
-	moveRight() {
-		this.move(1);
+	moveRight(showArrow = true) {
+		this.move(1, showArrow);
 	}
 
 	async initBackgrounds() {

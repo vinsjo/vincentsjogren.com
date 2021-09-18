@@ -11,9 +11,11 @@ import { roundFloat, defined, sizeTemplate } from "./functions.js";
 import Timer from "./timer.js";
 export default class BgLoader {
     constructor(slider, slides, images, sizes, imgBaseUrl, imgPrefix, touchAreaLeft, touchAreaRight) {
-        this.slideTransitionLength = 300;
+        this.slideTransitionLength = 500;
         this.slideDefaultTransition = `transform ${this.slideTransitionLength} ease-in-out`;
         this.direction = 0;
+        this.busy = false;
+        this.touchScreen = true;
         this.options = {
             stretch: 1,
             sizeLimit: 0,
@@ -30,7 +32,6 @@ export default class BgLoader {
         this.currentIndex = 0;
         this.failedLoading = [];
         this.preloaded = [];
-        this.busy = false;
         this.options.sizeLimit = sizes.length;
         this.timer = new Timer();
     }
@@ -255,21 +256,23 @@ export default class BgLoader {
             });
         }
     }
-    move(direction = 0) {
+    move(direction = 0, showArrow = true) {
         if (Date.now() - this.keyDownTimeout > this.slideTransitionLength) {
             this.direction = direction < 0 ? -1 : 1;
-            let touchArea = direction < 0 ? this.touchAreaRight : this.touchAreaLeft;
-            touchArea.classList.add("show");
+            if (showArrow) {
+                const touchArea = direction > 0 ? this.touchAreaLeft : this.touchAreaRight;
+                touchArea.classList.add("show");
+                setTimeout(() => touchArea.classList.remove("show"), this.slideTransitionLength);
+            }
             this.setSliderX(this.direction * window.innerWidth);
-            setTimeout(() => touchArea.classList.remove("show"), this.slideTransitionLength);
             this.keyDownTimeout = Date.now();
         }
     }
-    moveLeft() {
-        this.move(-1);
+    moveLeft(showArrow = true) {
+        this.move(-1, showArrow);
     }
-    moveRight() {
-        this.move(1);
+    moveRight(showArrow = true) {
+        this.move(1, showArrow);
     }
     initBackgrounds() {
         return __awaiter(this, void 0, void 0, function* () {

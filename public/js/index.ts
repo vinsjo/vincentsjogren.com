@@ -13,22 +13,17 @@ const slider = document.querySelector(".slider") as HTMLDivElement,
 		document.querySelectorAll(".slide")
 	) as HTMLDivElement[],
 	apiRequestUrl = "http://localhost/vincentsjogren.com/api";
-
-window.oncontextmenu = (ev: MouseEvent) => {
-	ev.preventDefault();
-	ev.stopPropagation();
-	return false;
-};
+// window.oncontextmenu = (ev: MouseEvent) => {
+// 	ev.preventDefault();
+// 	ev.stopPropagation();
+// 	return false;
+// };
 
 window.onload = async () => {
 	const apiHeaders = {Accept: "application/json"};
 	const apiReq = new ApiRequest(apiRequestUrl, apiHeaders);
 	const result = await apiReq.sendRequest();
-	if (typeof result === "boolean") {
-		slides[2].style.backgroundImage =
-			"http://localhost/vincentsjogren.com/public/img/default.jpg";
-		slides[2].style.opacity = "1";
-	} else {
+	if (typeof result === "object") {
 		const loader = new BgLoader(
 			slider,
 			slides,
@@ -41,12 +36,30 @@ window.onload = async () => {
 		);
 		await loader.init();
 		window.onkeydown = (ev: KeyboardEvent) => {
-			if (ev.key === "ArrowLeft") loader.moveRight();
-			if (ev.key === "ArrowRight") loader.moveLeft();
+			ev.key === "ArrowLeft" && loader.moveLeft();
+			ev.key === "ArrowRight" && loader.moveRight();
 		};
-		touchAreaLeft.ontouchstart = touchAreaLeft.onmousedown = () =>
-			loader.moveRight();
-		touchAreaRight.ontouchstart = touchAreaRight.onmousedown = () =>
-			loader.moveLeft();
+		window.ontouchend = window.onclick = (ev: MouseEvent | TouchEvent) => {
+			if (
+				!ev.type.includes("mouse") ||
+				(ev instanceof MouseEvent && ev.button === 0)
+			) {
+				const showArrow = !ev.type.includes("mouse");
+				ev.target === touchAreaLeft && loader.moveLeft(showArrow);
+				ev.target === touchAreaRight && loader.moveRight(showArrow);
+			}
+		};
+		touchAreaLeft.style.cursor =
+			'url("' +
+			"http://localhost/vincentsjogren.com/public/icons/arrow-left-cursor.svg" +
+			'") 1 16, auto';
+		touchAreaRight.style.cursor =
+			'url("' +
+			"http://localhost/vincentsjogren.com/public/icons/arrow-right-cursor.svg" +
+			'") 17 16, auto';
+	} else {
+		slides[2].style.backgroundImage =
+			"http://localhost/vincentsjogren.com/public/img/default.jpg";
+		slides[2].style.opacity = "1";
 	}
 };

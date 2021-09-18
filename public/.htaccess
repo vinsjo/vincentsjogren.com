@@ -3,5 +3,5 @@ RewriteEngine On
 RewriteBase /public/
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond $1 !^(css|img|fonts|js|favicon)
+RewriteCond $1 !^(css|img|fonts|js|icons)
 RewriteRule  ^(.+)$ index.html?uri=$1 [co=SameSite:Strict] [QSA,L]
