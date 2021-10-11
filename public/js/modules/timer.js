@@ -1,4 +1,4 @@
-export default class Timer {
+export class Timer {
     constructor(maxDataLength = 10) {
         this.data = [];
         this.maxDataLength = maxDataLength;

@@ -16,12 +16,12 @@ define("URL_IMG", URL_ROOT . "/img");
 
 define("IMG_PREFIX", "vsjogren");
 define("IMG_SIZES", [
-    "_xs"  => 640,
-    "_s"   => 960,
-    "_m"   => 1440,
-    "_l"   => 1920,
-    "_xl"  => 2560,
-    "_xxl" => 3840,
+    "_xs" => 640,
+    "_s"  => 960,
+    "_m"  => 1440,
+    "_l"  => 1920,
+    "_xl" => 2560,
+    //"_xxl" => 3840,
 ]);
 
 define("JSON_TIME_FORMAT", "Y-m-d H:i:s");

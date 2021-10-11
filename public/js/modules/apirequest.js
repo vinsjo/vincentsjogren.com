@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { defined } from "./functions.js";
-export default class ApiRequest {
+export class ApiRequest {
     constructor(url, headers) {
         this.url = url;
         if (defined(headers)) {

@@ -1,7 +1,7 @@
 import {defined} from "./functions.js";
 import type {ApiResponse, ApiResult} from "./types";
 
-export default class ApiRequest {
+export class ApiRequest {
 	url: string;
 	headers: object;
 	response: string;

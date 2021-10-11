@@ -7,42 +7,55 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import ApiRequest from "./modules/apirequest.js";
-import BgLoader from "./modules/bgloader.js";
+import { ApiRequest } from "./modules/apirequest.js";
+import { BgLoader } from "./modules/bgloader.js";
 import { shuffleArray } from "./modules/functions.js";
-const slider = document.querySelector(".slider"), pageWrapper = document.querySelector("#page-wrapper"), touchAreaLeft = document.querySelector(".touch-area.left"), touchAreaRight = document.querySelector(".touch-area.right"), slides = Array.from(document.querySelectorAll(".slide")), apiRequestUrl = "http://localhost/vincentsjogren.com/api";
-// window.oncontextmenu = (ev: MouseEvent) => {
-// 	ev.preventDefault();
-// 	ev.stopPropagation();
-// 	return false;
-// };
+const slider = document.querySelector(".slider"), pageWrapper = document.querySelector("#page-wrapper"), touchAreaLeft = document.querySelector(".touch-area.left"), touchAreaRight = document.querySelector(".touch-area.right"), slides = Array.from(document.querySelectorAll(".slide")), apiRequestUrl = "http://localhost/vincentsjogren.com/api", slideTransitionLength = 300;
+window.oncontextmenu = (ev) => {
+    if (!ev.type.includes("mouse") || ev.button === 0) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        return false;
+    }
+};
+function showArrow(arrowContainer) {
+    arrowContainer.classList.add("show");
+    setTimeout(() => {
+        arrowContainer.classList.remove("show");
+    }, slideTransitionLength);
+}
 window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
-    const apiHeaders = { Accept: "application/json" };
-    const apiReq = new ApiRequest(apiRequestUrl, apiHeaders);
-    const result = yield apiReq.sendRequest();
+    const apiHeaders = { Accept: "application/json" }, apiReq = new ApiRequest(apiRequestUrl, apiHeaders), result = yield apiReq.sendRequest();
     if (typeof result === "object") {
-        const loader = new BgLoader(slider, slides, shuffleArray(result.img_files), result.img_sizes, result.img_base_url, result.img_prefix, touchAreaLeft, touchAreaRight);
+        const loader = new BgLoader(slider, slides, shuffleArray(result.img_files), result.img_sizes, result.img_base_url, result.img_prefix);
+        loader.setDefaultSliderTransition(slideTransitionLength, "ease-in-out");
         yield loader.init();
         window.onkeydown = (ev) => {
-            ev.key === "ArrowLeft" && loader.moveLeft();
-            ev.key === "ArrowRight" && loader.moveRight();
+            ev.key === "ArrowLeft" &&
+                loader.moveLeft() &&
+                showArrow(touchAreaLeft);
+            ev.key === "ArrowRight" &&
+                loader.moveRight() &&
+                showArrow(touchAreaRight);
         };
-        window.ontouchend = window.onclick = (ev) => {
-            if (!ev.type.includes("mouse") ||
-                (ev instanceof MouseEvent && ev.button === 0)) {
-                const showArrow = !ev.type.includes("mouse");
-                ev.target === touchAreaLeft && loader.moveLeft(showArrow);
-                ev.target === touchAreaRight && loader.moveRight(showArrow);
-            }
+        touchAreaRight.ontouchend = touchAreaRight.onmouseup = (ev) => {
+            loader.moveRight() &&
+                ev.type.includes("touch") &&
+                showArrow(touchAreaRight);
+        };
+        touchAreaLeft.ontouchend = touchAreaLeft.onmouseup = (ev) => {
+            loader.moveLeft() &&
+                ev.type.includes("touch") &&
+                showArrow(touchAreaLeft);
         };
         touchAreaLeft.style.cursor =
             'url("' +
                 "http://localhost/vincentsjogren.com/public/icons/arrow-left-cursor.svg" +
-                '") 1 16, auto';
+                '") 1 16, pointer';
         touchAreaRight.style.cursor =
             'url("' +
                 "http://localhost/vincentsjogren.com/public/icons/arrow-right-cursor.svg" +
-                '") 17 16, auto';
+                '") 17 16, pointer';
     }
     else {
         slides[2].style.backgroundImage =

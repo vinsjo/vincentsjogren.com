@@ -1,5 +1,5 @@
-import ApiRequest from "./modules/apirequest.js";
-import BgLoader from "./modules/bgloader.js";
+import {ApiRequest} from "./modules/apirequest.js";
+import {BgLoader} from "./modules/bgloader.js";
 import {shuffleArray} from "./modules/functions.js";
 const slider = document.querySelector(".slider") as HTMLDivElement,
 	pageWrapper = document.querySelector("#page-wrapper") as HTMLDivElement,
@@ -12,17 +12,28 @@ const slider = document.querySelector(".slider") as HTMLDivElement,
 	slides = Array.from(
 		document.querySelectorAll(".slide")
 	) as HTMLDivElement[],
-	apiRequestUrl = "http://localhost/vincentsjogren.com/api";
-// window.oncontextmenu = (ev: MouseEvent) => {
-// 	ev.preventDefault();
-// 	ev.stopPropagation();
-// 	return false;
-// };
+	apiRequestUrl = "http://localhost/vincentsjogren.com/api",
+	slideTransitionLength = 300;
+
+window.oncontextmenu = (ev: MouseEvent) => {
+	if (!ev.type.includes("mouse") || ev.button === 0) {
+		ev.preventDefault();
+		ev.stopPropagation();
+		return false;
+	}
+};
+
+function showArrow(arrowContainer: HTMLDivElement) {
+	arrowContainer.classList.add("show");
+	setTimeout(() => {
+		arrowContainer.classList.remove("show");
+	}, slideTransitionLength);
+}
 
 window.onload = async () => {
-	const apiHeaders = {Accept: "application/json"};
-	const apiReq = new ApiRequest(apiRequestUrl, apiHeaders);
-	const result = await apiReq.sendRequest();
+	const apiHeaders = {Accept: "application/json"},
+		apiReq = new ApiRequest(apiRequestUrl, apiHeaders),
+		result = await apiReq.sendRequest();
 	if (typeof result === "object") {
 		const loader = new BgLoader(
 			slider,
@@ -30,24 +41,31 @@ window.onload = async () => {
 			shuffleArray(result.img_files),
 			result.img_sizes,
 			result.img_base_url,
-			result.img_prefix,
-			touchAreaLeft,
-			touchAreaRight
+			result.img_prefix
 		);
+		loader.setDefaultSliderTransition(slideTransitionLength, "ease-in-out");
 		await loader.init();
 		window.onkeydown = (ev: KeyboardEvent) => {
-			ev.key === "ArrowLeft" && loader.moveLeft();
-			ev.key === "ArrowRight" && loader.moveRight();
+			ev.key === "ArrowLeft" &&
+				loader.moveLeft() &&
+				showArrow(touchAreaLeft);
+			ev.key === "ArrowRight" &&
+				loader.moveRight() &&
+				showArrow(touchAreaRight);
 		};
-		window.ontouchend = window.onclick = (ev: MouseEvent | TouchEvent) => {
-			if (
-				!ev.type.includes("mouse") ||
-				(ev instanceof MouseEvent && ev.button === 0)
-			) {
-				const showArrow = !ev.type.includes("mouse");
-				ev.target === touchAreaLeft && loader.moveLeft(showArrow);
-				ev.target === touchAreaRight && loader.moveRight(showArrow);
-			}
+		touchAreaRight.ontouchend = touchAreaRight.onmouseup = (
+			ev: MouseEvent | TouchEvent
+		) => {
+			loader.moveRight() &&
+				ev.type.includes("touch") &&
+				showArrow(touchAreaRight);
+		};
+		touchAreaLeft.ontouchend = touchAreaLeft.onmouseup = (
+			ev: MouseEvent | TouchEvent
+		) => {
+			loader.moveLeft() &&
+				ev.type.includes("touch") &&
+				showArrow(touchAreaLeft);
 		};
 		touchAreaLeft.style.cursor =
 			'url("' +

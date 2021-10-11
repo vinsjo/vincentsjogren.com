@@ -1,8 +1,8 @@
 import {roundFloat, defined, shuffleArray, sizeTemplate} from "./functions.js";
 import type {ImgInfo, SizeInfo} from "./types";
-import Timer from "./timer.js";
+import {Timer} from "./timer.js";
 
-export default class BgLoader {
+export class BgLoader {
 	div: HTMLDivElement;
 	slider: HTMLDivElement;
 	slides: HTMLDivElement[];
@@ -16,8 +16,8 @@ export default class BgLoader {
 	failedLoading: ImgInfo[];
 	preloaded: string[];
 	timer: Timer;
-	slideTransitionLength = 500;
-	slideDefaultTransition = `transform ${this.slideTransitionLength} ease-in-out`;
+	transitionLength = 0;
+	transitionEffect = "ease";
 	direction: -1 | 0 | 1 = 0;
 	busy = false;
 	touchScreen = true;
@@ -33,14 +33,10 @@ export default class BgLoader {
 		images: ImgInfo[],
 		sizes: SizeInfo[],
 		imgBaseUrl: string,
-		imgPrefix: string,
-		touchAreaLeft: HTMLDivElement,
-		touchAreaRight: HTMLDivElement
+		imgPrefix: string
 	) {
 		this.slider = slider;
 		this.slides = slides;
-		this.touchAreaLeft = touchAreaLeft;
-		this.touchAreaRight = touchAreaRight;
 		this.images = images;
 		this.sizes = sizes;
 		this.baseUrl = imgBaseUrl;
@@ -51,13 +47,20 @@ export default class BgLoader {
 		this.options.sizeLimit = sizes.length;
 		this.timer = new Timer();
 	}
+
 	setSliderX(translateX: number) {
 		this.slider.style.transform = `translateX(${translateX}px)`;
 	}
 	setSliderTransition(ms: number | boolean) {
-		if (typeof ms === "number")
-			this.slider.style.transition = `transform ${ms}ms ease-in-out`;
+		if (typeof ms === "number" && ms > 0)
+			this.slider.style.transition = `transform ${ms}ms ${this.transitionEffect}`;
 		else this.slider.style.transition = "none";
+	}
+	setDefaultSliderTransition(ms: number, effect: string) {
+		if (typeof ms !== "number" || ms < 0) return;
+		this.transitionLength = ms;
+		this.transitionEffect = effect;
+		this.setSliderTransition(ms);
 	}
 
 	updateLoadingOptions() {
@@ -87,7 +90,6 @@ export default class BgLoader {
 		s.ratio = roundFloat(s.max / s.min, 2);
 		return s;
 	}
-
 	getImgSize(img: ImgInfo, size: SizeInfo) {
 		const s = sizeTemplate();
 		s.max = size.value;
@@ -103,7 +105,6 @@ export default class BgLoader {
 		}
 		return s;
 	}
-
 	getImgName(imgIndex: number, sizeIndex?: number): string {
 		imgIndex < 0 && (imgIndex = this.images.length - 1);
 		imgIndex > this.images.length - 1 && (imgIndex = 0);
@@ -147,7 +148,6 @@ export default class BgLoader {
 		}
 		return this.imgPrefix + img.name + size.key + ".jpg";
 	}
-
 	getImgUrl(imgIndex: number, sizeIndex?: number): string {
 		const imgName = this.getImgName(imgIndex, sizeIndex);
 		if (typeof imgName !== "string" || imgName.length === 0) {
@@ -155,7 +155,6 @@ export default class BgLoader {
 		}
 		return this.baseUrl + "/" + imgName;
 	}
-
 	incCurrent(inc: -1 | 0 | 1) {
 		if (this.images.length > 0) {
 			let i = inc < 0 ? this.currentIndex - 1 : this.currentIndex + 1;
@@ -164,7 +163,6 @@ export default class BgLoader {
 			this.currentIndex = i;
 		}
 	}
-
 	async unsetImg(index: number) {
 		this.failedLoading.push(this.images.splice(index, 1)[0]);
 		if (this.failedLoading.length >= this.options.failLimit) {
@@ -174,7 +172,6 @@ export default class BgLoader {
 			this.images = [];
 		}
 	}
-
 	async preloadImgUrl(url: string): Promise<boolean> {
 		let self = this;
 		return new Promise((resolve, reject) => {
@@ -276,33 +273,26 @@ export default class BgLoader {
 			setTimeout(() => {
 				this.loadSlideBackground(updatedSlide, loadIndex);
 				this.direction = 0;
-				this.setSliderTransition(this.slideTransitionLength);
+				this.setSliderTransition(this.transitionLength);
 			});
 		}
 	}
 
-	move(direction: -1 | 0 | 1 = 0, showArrow = true) {
-		if (Date.now() - this.keyDownTimeout > this.slideTransitionLength) {
+	move(direction: -1 | 0 | 1 = 0) {
+		if (Date.now() - this.keyDownTimeout > this.transitionLength) {
 			this.direction = direction < 0 ? -1 : 1;
-			if (showArrow) {
-				const touchArea =
-					direction > 0 ? this.touchAreaLeft : this.touchAreaRight;
-				touchArea.classList.add("show");
-				setTimeout(
-					() => touchArea.classList.remove("show"),
-					this.slideTransitionLength
-				);
-			}
 			this.setSliderX(this.direction * window.innerWidth);
 			this.keyDownTimeout = Date.now();
+			return true;
 		}
+		return false;
 	}
 
-	moveLeft(showArrow = true) {
-		this.move(-1, showArrow);
+	moveLeft() {
+		return this.move(-1);
 	}
-	moveRight(showArrow = true) {
-		this.move(1, showArrow);
+	moveRight() {
+		return this.move(1);
 	}
 
 	async initBackgrounds() {
@@ -318,7 +308,7 @@ export default class BgLoader {
 			this.keyDownTimeout = Date.now();
 			await this.testLoadingSpeed();
 			await this.initBackgrounds();
-			this.setSliderTransition(this.slideTransitionLength);
+			this.setSliderTransition(this.transitionLength);
 			this.slider.ontransitionend = (ev: TransitionEvent) => {
 				if (ev.target === this.slider) this.onTransitionEnd();
 			};

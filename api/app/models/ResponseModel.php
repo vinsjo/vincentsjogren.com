@@ -260,6 +260,7 @@ class ResponseModel extends FileHandler
                 return [];
             }
             $output = [];
+            $images = [];
             foreach ($files as $path) {
                 if (!is_string($path) || !file_exists($path)) {
                     continue;

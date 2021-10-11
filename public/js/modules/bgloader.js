@@ -8,11 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { roundFloat, defined, sizeTemplate } from "./functions.js";
-import Timer from "./timer.js";
-export default class BgLoader {
-    constructor(slider, slides, images, sizes, imgBaseUrl, imgPrefix, touchAreaLeft, touchAreaRight) {
-        this.slideTransitionLength = 500;
-        this.slideDefaultTransition = `transform ${this.slideTransitionLength} ease-in-out`;
+import { Timer } from "./timer.js";
+export class BgLoader {
+    constructor(slider, slides, images, sizes, imgBaseUrl, imgPrefix) {
+        this.transitionLength = 0;
+        this.transitionEffect = "ease";
         this.direction = 0;
         this.busy = false;
         this.touchScreen = true;
@@ -23,8 +23,6 @@ export default class BgLoader {
         };
         this.slider = slider;
         this.slides = slides;
-        this.touchAreaLeft = touchAreaLeft;
-        this.touchAreaRight = touchAreaRight;
         this.images = images;
         this.sizes = sizes;
         this.baseUrl = imgBaseUrl;
@@ -39,10 +37,17 @@ export default class BgLoader {
         this.slider.style.transform = `translateX(${translateX}px)`;
     }
     setSliderTransition(ms) {
-        if (typeof ms === "number")
-            this.slider.style.transition = `transform ${ms}ms ease-in-out`;
+        if (typeof ms === "number" && ms > 0)
+            this.slider.style.transition = `transform ${ms}ms ${this.transitionEffect}`;
         else
             this.slider.style.transition = "none";
+    }
+    setDefaultSliderTransition(ms, effect) {
+        if (typeof ms !== "number" || ms < 0)
+            return;
+        this.transitionLength = ms;
+        this.transitionEffect = effect;
+        this.setSliderTransition(ms);
     }
     updateLoadingOptions() {
         const avg = this.timer.avg();
@@ -252,27 +257,24 @@ export default class BgLoader {
             setTimeout(() => {
                 this.loadSlideBackground(updatedSlide, loadIndex);
                 this.direction = 0;
-                this.setSliderTransition(this.slideTransitionLength);
+                this.setSliderTransition(this.transitionLength);
             });
         }
     }
-    move(direction = 0, showArrow = true) {
-        if (Date.now() - this.keyDownTimeout > this.slideTransitionLength) {
+    move(direction = 0) {
+        if (Date.now() - this.keyDownTimeout > this.transitionLength) {
             this.direction = direction < 0 ? -1 : 1;
-            if (showArrow) {
-                const touchArea = direction > 0 ? this.touchAreaLeft : this.touchAreaRight;
-                touchArea.classList.add("show");
-                setTimeout(() => touchArea.classList.remove("show"), this.slideTransitionLength);
-            }
             this.setSliderX(this.direction * window.innerWidth);
             this.keyDownTimeout = Date.now();
+            return true;
         }
+        return false;
     }
-    moveLeft(showArrow = true) {
-        this.move(-1, showArrow);
+    moveLeft() {
+        return this.move(-1);
     }
-    moveRight(showArrow = true) {
-        this.move(1, showArrow);
+    moveRight() {
+        return this.move(1);
     }
     initBackgrounds() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -289,7 +291,7 @@ export default class BgLoader {
                 this.keyDownTimeout = Date.now();
                 yield this.testLoadingSpeed();
                 yield this.initBackgrounds();
-                this.setSliderTransition(this.slideTransitionLength);
+                this.setSliderTransition(this.transitionLength);
                 this.slider.ontransitionend = (ev) => {
                     if (ev.target === this.slider)
                         this.onTransitionEnd();
