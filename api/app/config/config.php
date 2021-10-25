@@ -11,7 +11,8 @@ define("IMG_ROOT", ROOT . "/img");
 define("IMG_JSON", APP_ROOT . "/json/img.json");
 define("ERROR_JSON", APP_ROOT . "/json/error.json");
 
-define('URL_ROOT', "http://localhost/vincentsjogren.com/api");
+define('URL_ROOT', "http://localhost/vincentsjogren_photo/api");
+// define('URL_ROOT', "https://vincentsjogren.com/api");
 define("URL_IMG", URL_ROOT . "/img");
 
 define("IMG_PREFIX", "vsjogren");

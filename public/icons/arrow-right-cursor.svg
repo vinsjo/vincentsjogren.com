@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="32.026" viewBox="-1.471 0 71.942 128">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        fill-rule: evenodd;
+      }
+    </style>
+    <clipPath id="clip-path">
+      <rect width="69" height="128"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip-path)">
+    <path id="Color_Fill_1" data-name="Color Fill 1" class="cls-1" d="M58.347,64L1.389,7.489c-1.6-1.59-2.141-3.936.142-6.2a3.7,3.7,0,0,1,5.54-.07C9.83,3.871,65.407,59.1,67.793,61.463A3.767,3.767,0,0,1,68.787,64m-10.44,0L1.389,120.449c-1.6,1.588-2.141,3.931.142,6.194a3.7,3.7,0,0,0,5.54.07C9.83,124.063,65.407,68.9,67.793,66.534A3.761,3.761,0,0,0,68.787,64"/>
+  </g>
+</svg>
