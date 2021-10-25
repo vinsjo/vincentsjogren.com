@@ -106,22 +106,22 @@ a {
 	transition: opacity 200ms ease-in-out;
 	opacity: 0;
 }
-.touch-area {
+.carousel-navigation {
 	position: absolute;
 	top: 0;
 	z-index: 5;
 	width: 50%;
 	height: 100%;
-	opacity: 0;
 	transition: opacity 200ms ease-in-out;
 	display: flex;
 	flex-flow: column nowrap;
 	justify-content: center;
+	opacity: 0;
 }
-.touch-area.show {
+.carousel-navigation.show {
 	opacity: 1;
 }
-.touch-area img {
+.carousel-navigation img {
 	opacity: 0.8;
 	-webkit-touch-callout: none; /* Safari */
 	-webkit-user-select: none; /* Chrome */
@@ -130,11 +130,11 @@ a {
 	user-select: none;
 	margin: 10px;
 }
-.touch-area.left {
+.carousel-navigation.left {
 	left: 0;
 	align-items: flex-start;
 }
-.touch-area.right {
+.carousel-navigation.right {
 	left: 50%;
 	align-items: flex-end;
 }

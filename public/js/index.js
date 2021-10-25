@@ -10,15 +10,49 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { ApiRequest } from "./modules/apirequest.js";
 import { BgLoader } from "./modules/bgloader.js";
 import { shuffleArray } from "./modules/functions.js";
-const carousel = document.querySelector(".image-carousel"), pageWrapper = document.querySelector("#page-wrapper"), touchAreaLeft = document.querySelector(".touch-area.left"), touchAreaRight = document.querySelector(".touch-area.right"), slideTransitionLength = 300;
 const baseURL = "http://localhost/vincentsjogren_photo";
 //const baseURL = "https://vincentsjogren.com";
 const apiRequestUrl = baseURL + "/api";
+//const apiRequestUrl = "https://vincentsjogren.com/api";
+let loader;
+const carousel = document.querySelector(".image-carousel");
+const carouselNav = {
+    left: null,
+    right: null,
+    handleMouseUpLeft(ev) {
+        if (loader) {
+            loader.moveLeft() &&
+                ev.type.includes("touch") &&
+                carouselNav.left &&
+                showArrow(carouselNav.left);
+        }
+    },
+    handleMouseUpRight(ev) {
+        if (loader) {
+            loader.moveRight() &&
+                ev.type.includes("touch") &&
+                carouselNav.right &&
+                showArrow(carouselNav.right);
+        }
+    },
+};
 const arrowCursors = {
     left: baseURL + "/public/icons/arrow-left-cursor.svg",
     right: baseURL + "/public/icons/arrow-right-cursor.svg",
 };
-//const apiRequestUrl = "https://vincentsjogren.com/api";
+const slideTransitionLength = 300;
+function handleKeydown(ev) {
+    if (loader) {
+        ev.key === "ArrowLeft" &&
+            loader.moveLeft() &&
+            carouselNav.left &&
+            showArrow(carouselNav.left);
+        ev.key === "ArrowRight" &&
+            loader.moveRight() &&
+            carouselNav.right &&
+            showArrow(carouselNav.right);
+    }
+}
 window.oncontextmenu = (ev) => {
     if (!ev.type.includes("mouse") || ev.button === 0) {
         ev.preventDefault();
@@ -33,6 +67,8 @@ function showArrow(arrowContainer) {
     }, slideTransitionLength);
 }
 window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
+    carouselNav.left = document.querySelector(".carousel-navigation.left");
+    carouselNav.right = document.querySelector(".carousel-navigation.right");
     const slider = document.createElement("div");
     slider.className = "slider";
     const slides = [];
@@ -45,30 +81,17 @@ window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
     carousel.appendChild(slider);
     const apiHeaders = { Accept: "application/json" }, apiReq = new ApiRequest(apiRequestUrl, apiHeaders), result = yield apiReq.sendRequest();
     if (typeof result === "object") {
-        const loader = new BgLoader(slider, slides, shuffleArray(result.img_files), result.img_sizes, result.img_base_url, result.img_prefix);
+        loader = new BgLoader(slider, slides, shuffleArray(result.img_files), result.img_sizes, result.img_base_url, result.img_prefix);
         loader.setDefaultSliderTransition(slideTransitionLength, "ease-in-out");
         yield loader.init();
-        window.onkeydown = (ev) => {
-            ev.key === "ArrowLeft" &&
-                loader.moveLeft() &&
-                showArrow(touchAreaLeft);
-            ev.key === "ArrowRight" &&
-                loader.moveRight() &&
-                showArrow(touchAreaRight);
-        };
-        touchAreaRight.ontouchend = touchAreaRight.onmouseup = (ev) => {
-            loader.moveRight() &&
-                ev.type.includes("touch") &&
-                showArrow(touchAreaRight);
-        };
-        touchAreaLeft.ontouchend = touchAreaLeft.onmouseup = (ev) => {
-            loader.moveLeft() &&
-                ev.type.includes("touch") &&
-                showArrow(touchAreaLeft);
-        };
-        touchAreaLeft.style.cursor =
+        window.onkeydown = handleKeydown;
+        carouselNav.right.ontouchend = carouselNav.handleMouseUpRight;
+        carouselNav.right.onmouseup = carouselNav.handleMouseUpRight;
+        carouselNav.left.ontouchend = carouselNav.handleMouseUpLeft;
+        carouselNav.left.onmouseup = carouselNav.handleMouseUpLeft;
+        carouselNav.left.style.cursor =
             'url("' + arrowCursors.left + '") 1 16, pointer';
-        touchAreaRight.style.cursor =
+        carouselNav.right.style.cursor =
             'url("' + arrowCursors.right + '") 17 16, pointer';
     }
     else {
