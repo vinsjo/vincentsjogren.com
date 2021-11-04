@@ -1,4 +1,4 @@
-import {roundFloat, defined, shuffleArray, sizeTemplate} from "./functions.js";
+import {roundFloat, defined, sizeTemplate} from "./functions.js";
 import type {ImgInfo, SizeInfo} from "./types";
 import {Timer} from "./timer.js";
 

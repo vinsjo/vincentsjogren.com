@@ -1,8 +1,9 @@
+"use strict";
 import {ApiRequest} from "./modules/apirequest.js";
 import {BgLoader} from "./modules/bgloader.js";
 import {shuffleArray} from "./modules/functions.js";
 
-const baseURL = "http://localhost/vincentsjogren_photo";
+const baseURL = "http://localhost/vincentsjogren.com";
 //const baseURL = "https://vincentsjogren.com";
 const apiRequestUrl = baseURL + "/api";
 //const apiRequestUrl = "https://vincentsjogren.com/api";
@@ -11,27 +12,16 @@ const carousel = document.querySelector(".image-carousel");
 const carouselNav = {
 	left: null,
 	right: null,
-	handleMouseUpLeft(ev: TouchEvent | MouseEvent) {
+	handleMouseUpLeft() {
 		if (loader) {
-			loader.moveLeft() &&
-				ev.type.includes("touch") &&
-				carouselNav.left &&
-				showArrow(carouselNav.left);
+			loader.moveLeft() && showArrow(carouselNav.left);
 		}
 	},
-	handleMouseUpRight(ev: TouchEvent | MouseEvent) {
+	handleMouseUpRight() {
 		if (loader) {
-			loader.moveRight() &&
-				ev.type.includes("touch") &&
-				carouselNav.right &&
-				showArrow(carouselNav.right);
+			loader.moveRight() && showArrow(carouselNav.right);
 		}
 	},
-};
-
-const arrowCursors = {
-	left: baseURL + "/public/icons/arrow-left-cursor.svg",
-	right: baseURL + "/public/icons/arrow-right-cursor.svg",
 };
 
 const slideTransitionLength = 300;
@@ -64,6 +54,13 @@ function showArrow(arrowContainer: HTMLDivElement) {
 	}, slideTransitionLength);
 }
 
+window.onresize = () => {
+	document.body.width = window.innerWidth;
+	document.body.height = window.innerHeight;
+	document.body.style.width = window.innerWidth.toString() + "px";
+	document.body.style.height = window.innerHeight.toString() + "px";
+};
+
 window.onload = async () => {
 	carouselNav.left = document.querySelector(
 		".carousel-navigation.left"
@@ -95,19 +92,9 @@ window.onload = async () => {
 		);
 		loader.setDefaultSliderTransition(slideTransitionLength, "ease-in-out");
 		await loader.init();
-
 		window.onkeydown = handleKeydown;
-
-		carouselNav.right.ontouchend = carouselNav.handleMouseUpRight;
-		carouselNav.right.onmouseup = carouselNav.handleMouseUpRight;
-
-		carouselNav.left.ontouchend = carouselNav.handleMouseUpLeft;
-		carouselNav.left.onmouseup = carouselNav.handleMouseUpLeft;
-
-		carouselNav.left.style.cursor =
-			'url("' + arrowCursors.left + '") 1 16, pointer';
-		carouselNav.right.style.cursor =
-			'url("' + arrowCursors.right + '") 17 16, pointer';
+		carouselNav.right.onpointerup = carouselNav.handleMouseUpRight;
+		carouselNav.left.onpointerup = carouselNav.handleMouseUpLeft;
 	} else {
 		slides[2].style.backgroundImage = baseURL + "/public/img/default.jpg";
 		slides[2].style.opacity = "1";
