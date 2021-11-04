@@ -63,7 +63,7 @@ window.onload = async () => {
 	const apiHeaders = {Accept: "application/json"},
 		apiReq = new ApiRequest(apiRequestUrl, apiHeaders),
 		result = await apiReq.sendRequest();
-	if (typeof result === "object") {
+	if (result !== false) {
 		loader = new BgLoader(
 			slider,
 			slides,
