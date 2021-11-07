@@ -3,10 +3,9 @@ import {ApiRequest} from "./modules/apirequest.js";
 import {BgLoader} from "./modules/bgloader.js";
 import {shuffleArray} from "./modules/functions.js";
 
-const baseURL = "http://localhost/vincentsjogren.com";
 //const baseURL = "https://vincentsjogren.com";
-const apiRequestUrl = baseURL + "/api";
-//const apiRequestUrl = "https://vincentsjogren.com/api";
+const baseURL = "http://localhost/vincentsjogren.com";
+const apiRequestUrl = baseURL + "/api/";
 const carousel = document.querySelector(".image-carousel");
 const slider = carousel.querySelector(".slider");
 const slides = slider.querySelectorAll(".slide");
@@ -51,13 +50,6 @@ function showArrow(arrowContainer) {
 		arrowContainer.classList.remove("show");
 	}, slideTransitionLength);
 }
-
-window.onresize = () => {
-	document.body.width = window.innerWidth;
-	document.body.height = window.innerHeight;
-	document.body.style.width = window.innerWidth.toString() + "px";
-	document.body.style.height = window.innerHeight.toString() + "px";
-};
 
 window.onload = async () => {
 	const apiHeaders = {Accept: "application/json"},
