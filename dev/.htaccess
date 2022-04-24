@@ -2,5 +2,5 @@ Options -Multiviews
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond $1 !^assets
+RewriteCond $1 !^(assets)
 RewriteRule  ^(.+)$ index.php?uri=$1 [QSA,L]

@@ -1,8 +1,11 @@
 Options -Indexes
 RewriteEngine on
-# RewriteCond %{HTTPS} !=on
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-# RewriteCond %{HTTP_HOST} ^www\.vincentsjogren\.com$
-# RewriteRule ^(.*)* https://vincentsjogren.com/$1 [L,R=301]
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteCond %{HTTP_HOST} ^www\.vincentsjogren\.com
+RewriteRule ^(.*)* https://vincentsjogren.com/$1 [L,R=301]
+RewriteCond %{HTTP_HOST} ^api\.vincentsjogren\.com
+RewriteRule ^(.*)$ api/$1 [L]
 RewriteCond $1 !^(api)
 RewriteRule ^(.*)$ public/$1 [L]
+

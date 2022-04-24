@@ -1,12 +1,10 @@
 <?php
 declare (strict_types = 1);
 
-class Response extends Controller
-{
-    private $__model;
+class Response extends Controller {
+    private $model;
     public $gzipEncode = true;
-    public function __construct()
-    {
+    public function __construct() {
         try {
             if ($_SERVER["HTTP_SEC_FETCH_SITE"] !== "same-origin"
             ) {
@@ -16,7 +14,7 @@ class Response extends Controller
                 strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") === false) {
                 $this->gzipEncode = false;
             }
-            $this->__model = new ResponseModel(
+            $this->model = new ResponseModel(
                 IMG_ROOT,
                 URL_IMG,
                 IMG_JSON,
@@ -24,33 +22,35 @@ class Response extends Controller
                 IMG_PREFIX,
                 IMG_SIZES
             );
-            $data = $this->__model->getResponse();
+            $data = $this->model->getResponse();
             if (empty($data)) {
-                $this->_error(500, "No response data.");
+                $this->error(500, "No response data.");
             } else {
-                $this->__response($data);
+                $this->response($data);
             }
         } catch (Exception $e) {
-            $this->_error();
+            $this->error();
         }
     }
 
-    private function __response($data)
-    {
-        header("Content-Type: application/json");
+    private function response($data) {
         $body = json_encode($data,
             JSON_UNESCAPED_UNICODE |
             JSON_UNESCAPED_SLASHES |
             JSON_PRESERVE_ZERO_FRACTION |
             JSON_NUMERIC_CHECK
         );
+        cors();
         if ($this->gzipEncode) {
             if ($gz = gzencode($body)) {
                 $body = $gz;
                 header("Content-Encoding: gzip");
             }
         }
+
         header("Content-Length: " . strlen($body));
+        header("Content-Type: application/json");
+
         echo $body;
     }
 }

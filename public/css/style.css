@@ -1,9 +1,8 @@
 @font-face {
-	font-family: "neuehaasgrotesk";
+	font-family: 'neuehaasgrotesk';
 	/* src: url("https://vincentsjogren.com/public/fonts/NHaasGroteskTXPro-55Rg.otf")
 		format("opentype"); */
-	src: url("http://localhost/vincentsjogren.com/public/fonts/NHaasGroteskTXPro-55Rg.otf")
-	format("opentype");
+	src: url('/public/fonts/NHaasGroteskTXPro-55Rg.otf') format('opentype');
 }
 * {
 	box-sizing: border-box;
@@ -54,7 +53,7 @@ a {
 	display: block;
 	outline: none;
 	text-align: center;
-	font-family: "neuehaasgrotesk", Arial, Helvetica, sans-serif;
+	font-family: 'neuehaasgrotesk', Arial, Helvetica, sans-serif;
 	font-size: 1.25rem;
 	color: #ffffff;
 	position: relative;
@@ -65,8 +64,8 @@ a {
 	background-color: transparent;
 	transition: background-color 200ms ease-in-out,
 		border-color 200ms ease-in-out;
-    overflow: visible;
-    max-width: 100vw;
+	overflow: visible;
+	max-width: 100vw;
 }
 .mail-link:hover,
 .mail-link:focus,
@@ -100,7 +99,7 @@ a {
 	display: inline-flex;
 }
 .slide {
-    display: inline-block;
+	display: inline-block;
 	width: 100vw;
 	height: 100vh;
 	flex: 1;
@@ -150,9 +149,9 @@ a {
 }
 
 @media only screen and (min-width: 370px) {
-    .mail-link {
-        font-size: 1.5rem;
-    }
+	.mail-link {
+		font-size: 1.5rem;
+	}
 }
 
 @media only screen and (min-width: 768px) {

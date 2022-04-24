@@ -3,8 +3,7 @@ declare (strict_types = 1);
 
 define("RESOPT_DEBUG", 101);
 
-class ResponseModel extends FileHandler
-{
+class ResponseModel extends FileHandler {
     /**
      * Path to image directory
      *
@@ -56,7 +55,7 @@ class ResponseModel extends FileHandler
      */
     public $error = [];
 
-    private $__opt = [
+    private $opt = [
         RESOPT_DEBUG => false,
     ];
 
@@ -80,11 +79,10 @@ class ResponseModel extends FileHandler
         }
     }
 
-    public function getResponse()
-    {
+    public function getResponse() {
         try {
             $response = [];
-            $data     = $this->__getImagesFromJson();
+            $data     = $this->getImagesFromJson();
             if (!empty($data)) {
                 $img_sizes = [];
                 foreach ($this->imgSizes as $key => $value) {
@@ -103,14 +101,14 @@ class ResponseModel extends FileHandler
             }
 
         } catch (Exception $e) {
-            $this->__setError($e);
+            $this->setError($e);
         } finally {
             if ($response["status"] !== "OK") {
                 if (!empty($this->error)) {
                     if (!isset($response["status"])) {
                         $response["status"] = "ERROR";
                     }
-                    if ($this->__opt[RESOPT_DEBUG]) {
+                    if ($this->opt[RESOPT_DEBUG]) {
                         $response["error"] = $this->error;
                     }
                 }
@@ -119,22 +117,19 @@ class ResponseModel extends FileHandler
         }
     }
 
-    public function setopt(int $key, $value)
-    {
-        if (key_exists($key, $this->__opt)) {
-            $this->__opt[$key] = boolval($value);
+    public function setopt(int $key, $value) {
+        if (key_exists($key, $this->opt)) {
+            $this->opt[$key] = boolval($value);
         }
     }
 
-    public function setopt_array(array $arr)
-    {
+    public function setopt_array(array $arr) {
         foreach ($arr as $key => $value) {
             $this->setopt(intval($key), $value);
         }
     }
 
-    public function error()
-    {
+    public function error() {
         try {
             if (empty($this->error)) {
                 return false;
@@ -145,10 +140,9 @@ class ResponseModel extends FileHandler
         }
     }
 
-    private function __getImagesFromJson(bool $updateOnEmpty = true)
-    {
+    private function getImagesFromJson(bool $updateOnEmpty = true) {
         try {
-            $data = $this->__getJsonContent($this->jsonImgPath);
+            $data = $this->getJsonContent($this->jsonImgPath);
             if ($data === false) {
                 $data = [];
             }
@@ -164,28 +158,26 @@ class ResponseModel extends FileHandler
                 }
             }
             if (empty($data) && $updateOnEmpty) {
-                $this->__updateImgJson();
-                return $this->__getImagesFromJson(false);
+                $this->updateImgJson();
+                return $this->getImagesFromJson(false);
             }
             return $data;
         } catch (Exception $e) {
-            $this->__setError($e);
+            $this->setError($e);
             return [];
         }
     }
 
-    private function __updateImgJson()
-    {
-        if ($data = $this->__getImagesFromFiles()) {
-            return $this->__storeJsonContent($this->jsonImgPath, $data);
+    private function updateImgJson() {
+        if ($data = $this->getImagesFromFiles()) {
+            return $this->storeJsonContent($this->jsonImgPath, $data);
         }
         return false;
     }
 
-    private function __updateErrorJson()
-    {
+    private function updateErrorJson() {
         if (!empty($this->error)) {
-            return $this->__storeJsonContent(
+            return $this->storeJsonContent(
                 $this->jsonErrorPath,
                 $this->error
             );
@@ -193,8 +185,7 @@ class ResponseModel extends FileHandler
         return false;
     }
 
-    private function __getJsonContent(string $path, bool $assoc = true)
-    {
+    private function getJsonContent(string $path, bool $assoc = true) {
         try {
             if (file_exists($path)) {
                 if ($json = file_get_contents($path)) {
@@ -204,13 +195,12 @@ class ResponseModel extends FileHandler
             }
             return false;
         } catch (Exception $e) {
-            $this->__setError($e);
+            $this->setError($e);
             return false;
         }
     }
 
-    private function __storeJsonContent(string $path, array $data, $flags = 0)
-    {
+    private function storeJsonContent(string $path, array $data, $flags = 0) {
         try {
             if ($json = json_encode($data, JSON_THROW_ON_ERROR)) {
                 if (file_put_contents($path, $json, $flags)) {
@@ -220,12 +210,11 @@ class ResponseModel extends FileHandler
             }
             throw new Exception("Failed encoding data to JSON-format.");
         } catch (Exception $e) {
-            $this->__setError($e);
+            $this->setError($e);
             return false;
         }
     }
-    private function __getImagesFromFiles()
-    {
+    private function getImagesFromFiles() {
         try {
             $extraSuffixes  = array_keys($this->imgSizes);
             $requiredSuffix = "";
@@ -239,17 +228,17 @@ class ResponseModel extends FileHandler
                 [$this->imgPrefix, $requiredSuffix],
                 $extraSuffixes
             );
-            return $this->__parseImageFileInfo(
+            return $this->parseImageFileInfo(
                 $files,
                 $this->imgPrefix,
                 $requiredSuffix,
                 $extraSuffixes);
         } catch (Exception $e) {
-            $this->__setError($e);
+            $this->setError($e);
             return [];
         }
     }
-    private function __parseImageFileInfo(
+    private function parseImageFileInfo(
         array $files,
         string $imgPrefix,
         string $imgSuffix,
@@ -296,7 +285,7 @@ class ResponseModel extends FileHandler
                 return strcmp($a["name"], $b["name"]);
             });
         } catch (Exception $e) {
-            $this->__setError($e);
+            $this->setError($e);
         } finally {
             if (!empty($images)) {
                 $output["updated_at"] = date(JSON_TIME_FORMAT);
@@ -305,49 +294,13 @@ class ResponseModel extends FileHandler
             return $output;
         }
     }
-    private function __setError(Exception $e)
-    {
+    private function setError(Exception $e) {
         $error = [
             "time"    => date(JSON_TIME_FORMAT),
             "code"    => $e->getCode(),
             "message" => $e->getMessage(),
         ];
         $this->error[] = $error;
-        $this->__updateErrorJson();
-        if ($this->__opt[RESOPT_DEBUG]) {
-            $this->__printError($error);
-        }
-    }
-    private function __printError($e)
-    {
-        $style = [
-            "div"    => 'font-family: Arial, Helvetica, sans-serif;'
-            . 'width:fit-content;max-width:95vw;height:fit-content;'
-            . 'padding:50px;margin:10vh auto;',
-            "header" => 'padding:10px 0;',
-            "table"  => 'width:100%;text-align:left;border-collapse:collapse;',
-            "td"     => 'border:1px solid #ddd;padding:10px 20px;',
-        ];
-        $output =
-            "\n<div style=\"{$style["div"]}\">\n"
-            . "\t<h3 style\"{$style["header"]}\">RESPONSE ERROR:</h3>\n"
-            . "\t<table style=\"{$style["table"]}\">\n";
-        if ($e instanceof Exception) {
-            $e = ["code" => $e->getCode(), "message" => $e->getMessage()];
-        }
-        if (is_array($e)) {
-            foreach ($e as $key => $value) {
-                $output .= "\t\t<tr>\n"
-                . "\t\t\t<td style=\"{$style["td"]}\"><strong>"
-                . htmlentities(strtoupper(strval($key))) . "</strong></td>\n"
-                . "\t\t\t<td style=\"{$style["td"]}\">"
-                . htmlentities(strval($value)) . "</td>\n";
-            }
-        } else {
-            $output .= "\t\t<tr>\n"
-            . "\t\t\t<td style=\"{$style["td"]}\">"
-            . htmlentities(strval($e)) . "</td>\n";
-        }
-        echo $output . "\t</table>\n</div>";
+        $this->updateErrorJson();
     }
 }
